@@ -3,12 +3,10 @@ import pandas as pd
 import json
 from datetime import datetime, date, timedelta
 
-df = pd.read_csv('btc_historical.csv')
+df = pd.read_csv('spy_historical.csv')
 df.index = pd.to_datetime(df['Date'])
 df = df.drop('Date', axis=1)
 
-def print_df(df):
-    print(tabulate(df, headers='keys', tablefmt='psql'))
 def create_time_features(df):
     df = df.copy()
     df['Year'] = df.index.year
@@ -25,7 +23,6 @@ def create_market_features(df):
     df['Difference'] = df['Close'] - df['Open']
     df['Lagged_Difference'] = df['Difference'].shift(1)
     df['Rolling_Difference'] = df['Lagged_Difference'].rolling(7).mean()
-    df['Lagged_Volume'] = df['Volume'].shift(1)
     df['Range'] = df['High'] - df['Low']
     df['Lagged_Range'] = df['Range'].shift(1)
     return df
@@ -34,18 +31,15 @@ df = create_time_features(df)
 df = create_market_features(df)
 df = df.dropna()
 
-FEATURES = ['Year', 'Month', 'DOM', 'DOW', 'Lagged_Gain', 'Rolling_Gain', 'Lagged_Difference', 'Rolling_Difference', 'Lagged_Volume', 'Lagged_Range']
+FEATURES = ['Year', 'Month', 'DOM', 'DOW', 'Lagged_Gain', 'Rolling_Gain', 'Lagged_Difference', 'Rolling_Difference', 'Lagged_Range']
 TARGET =  ['Gain']
 
 train_df = df.copy()
 X_train = train_df[FEATURES]
 y_train = train_df[TARGET]
 
-reg = xgb.XGBClassifier(
-                    eval_metric='logloss',
-                )
-reg.fit(X_train, y_train,
-    verbose=1000)
+reg = xgb.XGBClassifier(eval_metric='logloss')
+reg.fit(X_train, y_train)
 
 today = date.today()
 tomorrow = today + timedelta(days=1)
