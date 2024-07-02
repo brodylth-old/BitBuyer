@@ -1,1 +1,3 @@
 config.json
+dockerbuild.ps1
+dockerrun.ps1
