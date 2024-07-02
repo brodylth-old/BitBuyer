@@ -1,3 +1,4 @@
 config.json
 build.ps1
-run.ps1
+runetl.ps1
+runmodel.ps1
